@@ -3,10 +3,13 @@ import {load} from 'cheerio';
 const searchUrl = "https://search.scielo.org/?lang=pt&count=15&from=0&output=site&sort=&format=summary&fb=&page=1&q=$keywords";
 
 interface SearchResult {
-  title: string | undefined;
+  originalTitle: string | undefined;
+  displayTitle: string | undefined;
   id: string | undefined;
   url: string | undefined;
   doi: string | undefined;
+  source: string | undefined;
+  year: string | undefined;
   authors: string[];
   abstracts: Abstracts;
 }
@@ -30,7 +33,10 @@ function scrapeData (html: string) {
     $(this)
       .find('.authors > .author')
       .each(function () {
-        authors.push($(this).text());
+        const name = $(this).text().split(',');
+        name[0] = name[0].toUpperCase();
+
+        authors.push(name.join(','));
       });
 
     $(this)
@@ -41,10 +47,16 @@ function scrapeData (html: string) {
       });
 
     searchResults.push({
-      title: $(this).find('.line > a').attr('title'),
+      originalTitle: $(this).find('.line > a').attr('title'),
+      displayTitle: $(this).find('.line .title').text(),
       id: $(this).attr('id'),
       url: $(this).find('.line > a').attr('href'),
       doi: $(this).find('.metadata a').attr('href'),
+      source: $(this).find('.source a').first().text(),
+      year: $(this).find('.source span').filter(function(i, el) {
+        if ($(this).text() == '') return false;
+        return !isNaN(+$(this).text().replace(',', ''));
+      }).first().text().replace(',', ''),
       authors: authors,
       abstracts: abstracts,
     });
