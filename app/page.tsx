@@ -1,11 +1,10 @@
 import SearchBar from "./components/SearchBar";
+import Header from "./components/Header";
 
 export default function Home() {
   return (
     <div className="flex flex-col items-center">
-      <header className="mb-5 text-center">
-        <h1>Protótipo</h1>
-      </header>
+      <Header/>
       <nav>
         <SearchBar />
       </nav>
