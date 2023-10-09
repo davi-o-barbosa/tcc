@@ -1,11 +1,11 @@
 import { load } from "cheerio";
 
-const searchUrl =
-  "https://search.scielo.org/?lang=pt&count=15&from=0&output=site&sort=&format=summary&fb=&page=1&q=$keywords";
+const searchUrl = "https://search.scielo.org/?lang=pt&count=15&from=0&output=site&sort=&format=summary&fb=&page=1&q=$keywords";
 
 interface SearchResult {
   originalTitle: string | undefined;
   displayTitle: string | undefined;
+  isNotPreprint: boolean;
   id: string | undefined;
   url: string | undefined;
   doi: string | undefined;
@@ -25,17 +25,23 @@ function trimUselessText(text: string) {
   return text.replace(/\s{2,}/g, "");
 }
 
-function scrapeData(html: string) {
+function isNotPreprint(title: string | undefined): boolean {
+  if (!title) return false;
+  return title?.slice(0, 18) != "[SciELO Preprints]";
+}
+
+function scrapeSearch(html: string) {
   const searchResults: SearchResult[] = [];
   const $ = load(html);
 
   $(".results > .item").each(function () {
+    const displayTitle = $(this).find(".line .title").text();
     const authors: string[] = [];
     const abstracts: Abstracts = {};
     const pdf: {lang: string, url: string}[] = [];
     const text: {lang: string, url: string}[] = [];
 
-
+    // Setting authors names
     $(this)
       .find(".authors > .author")
       .each(function () {
@@ -45,6 +51,7 @@ function scrapeData(html: string) {
         authors.push(name.join(","));
       });
 
+    // Setting abstracts
     $(this)
       .find(".user-actions > .abstract")
       .each(function () {
@@ -52,6 +59,7 @@ function scrapeData(html: string) {
         if (lang) abstracts[lang] = trimUselessText($(this).text());
       });
 
+    // Setting article's links and PDF links
     $(this)
       .find(".versions > span > a")
       .each(function () {
@@ -64,7 +72,8 @@ function scrapeData(html: string) {
 
     searchResults.push({
       originalTitle: $(this).find(".line > a").attr("title"),
-      displayTitle: $(this).find(".line .title").text(),
+      displayTitle: displayTitle,
+      isNotPreprint: isNotPreprint(displayTitle),
       id: $(this).attr("id"),
       url: $(this).find(".line > a").attr("href"),
       doi: $(this).find(".metadata a").attr("href"),
@@ -88,15 +97,9 @@ function scrapeData(html: string) {
   return searchResults;
 }
 
-export async function search(keywords: string) {
+export default async function search(keywords: string) {
   const response = await fetch(searchUrl.replace("$keywords", keywords));
-  const data = scrapeData(await response.text());
+  const data = scrapeSearch(await response.text());
 
   return data;
-}
-
-
-export async function scrapeArticle(url: string) {
-  const response = await fetch(url);
-  
 }

@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import { ChangeEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { ChangeEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import Button from "./button";
 
 export default function SearchBar() {
-  const [dataset, setDataset] = useState<string>('scielo');
+  const [dataset, setDataset] = useState<string>("scielo");
   const [keywords, setKeywords] = useState<string | undefined>(undefined);
   const [author, setAuthor] = useState<string | undefined>(undefined);
   const [year, setYear] = useState<number | undefined>(undefined);
@@ -29,35 +30,33 @@ export default function SearchBar() {
 
   function handleSubmit(e: any) {
     e.preventDefault();
-    let searchString = '';
+    let searchString = "";
 
     if (!keywords && !author && !year) return;
-    if (keywords && (!author && !year)) {
+    if (keywords && !author && !year) {
       searchString = encodeURI(keywords);
     } else {
       let fields: string[] = [];
       if (keywords) fields.push(keywords);
-      if (author) fields.push(`(au:(${author}))`)
-      if (year) fields.push(`(year_cluster:(${year}))`)
-      searchString = encodeURI(fields.join('+AND+'));
+      if (author) fields.push(`(au:(${author}))`);
+      if (year) fields.push(`(year_cluster:(${year}))`);
+      searchString = encodeURI(fields.join("+AND+"));
     }
+
     router.push(`/${dataset}/busca/?keywords=${searchString}`);
   }
 
   return (
-    <form className='flex flex-col items-start' onSubmit={handleSubmit}>
+    <form role="search" className="flex flex-col items-start" onSubmit={handleSubmit}>
       <div>
-        <label htmlFor="bancos">Banco:</label>
+        <label htmlFor="bancos">Banco de artigos:</label>
         <select
-          aria-label='Selecione o banco de periódicos para realizar a busca.'
           defaultValue={dataset}
           id="bancos"
           className="ml-3 mb-2"
           onChange={handleDatasetChange}
         >
-          <option value="scielo">
-            Scielo.org
-          </option>
+          <option value="scielo">Scielo.org</option>
         </select>
       </div>
       <div>
@@ -67,7 +66,8 @@ export default function SearchBar() {
           id="keywords"
           placeholder="Exemplo: covid"
           className="ml-3 mb-2 w-52 sm:w-96"
-          onChange={handleKeywordsChange} />
+          onChange={handleKeywordsChange}
+        />
       </div>
       <div>
         <label htmlFor="author">Autor:</label>
@@ -76,7 +76,8 @@ export default function SearchBar() {
           id="author"
           placeholder="Exemplo: João"
           className="ml-3 mb-2 w-52 sm:w-96"
-          onChange={handleAuthorChange} />
+          onChange={handleAuthorChange}
+        />
       </div>
       <div>
         <label htmlFor="year">Ano da publicação:</label>
@@ -85,9 +86,10 @@ export default function SearchBar() {
           id="year"
           placeholder="Exemplo: 2021, 2020"
           className="ml-3 mb-2 w-52 sm:w-96"
-          onChange={handleYearChange} />
+          onChange={handleYearChange}
+        />
       </div>
-      <button type="submit">Buscar</button>
+      <Button text="Buscar"/>
     </form>
   );
 }
