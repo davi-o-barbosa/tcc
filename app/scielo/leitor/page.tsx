@@ -54,6 +54,20 @@ export default async function Leitor({
           );
         })}
       </article>
+      <div>
+        <h2>{data.references.headingName}</h2>
+        {
+          data.references.data.map((a) => {
+            return (
+              <div key={a.id} id={a.id}>
+                <p>{a.text + ' '}
+                  <a href={a.url}>{a.url}</a>
+                </p>
+              </div>
+            )
+          })
+        }
+      </div>
     </main>
   );
 }

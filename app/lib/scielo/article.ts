@@ -48,6 +48,17 @@ export interface AuthorDescription {
   [key: string]: string,
 }
 
+export interface Reference {
+  id: string,
+  url: string | undefined,
+  text: string
+}
+
+export interface References {
+  headingName: string,
+  data: Reference[]
+}
+
 function getSectionData(section: Element, host: string) {
   const $ = load(section);
 
@@ -154,6 +165,20 @@ function getAuthorsData(a: Cheerio<Element>, d: Cheerio<Element>) {
   return { authors, descriptions };
 }
 
+function getReferenceData(reference: Element) {
+  const $ = load(reference);
+
+  const anchor = $('a').attr('name');
+  const url = $('[target="_blank"]').text();
+  const text = $.text().replace(/(http|\[.L)(.*)/g, '').trim();
+
+  return {
+    id: anchor as string,
+    url: !url ? undefined : url,
+    text: text as string,
+  }
+}
+
 function getPageHost(url: string) {
   const split = url.split('/');
   return split[0] + '//' + split[2];
@@ -168,6 +193,11 @@ async function scrapeLegacyArticle(html: string, host: string) {
   const sections: Section[] = [];
   // Autores do artigo, junto com suas descrições;
   const authors = getAuthorsData($('.author'), $('.aff'));
+  // Referências do Artigo, junto com as âncoras.
+  const references: References = {
+    headingName: $('#article-back .sec').text(),
+    data: [],
+  };
 
   $('.abstract, .trans-abstract').each((_, abstractElement) => {
     abstracts.push(getAbstractData(abstractElement));
@@ -177,13 +207,18 @@ async function scrapeLegacyArticle(html: string, host: string) {
     sections.push(getSectionData(sectionElement, host));
   });
 
+  $('.ref').each((_, reference) => {
+    references.data.push(getReferenceData(reference));
+  });
+
   return {
     type: "legacy",
     title: $('.title').html(),
     altTitle: getTranslatedTitles($('.trans-title').toArray()),
     authors: authors,
     abstracts: abstracts,
-    sections: sections
+    sections: sections,
+    references: references
   }
 }
 
