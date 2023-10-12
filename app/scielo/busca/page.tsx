@@ -23,7 +23,7 @@ export default async function ScieloBusca({
   const results = await search(searchParams.keywords);
 
   return (
-    <div className="m-0 sm:mx-10">
+    <div className="sm:w-10/12 xl:w-2/3">
       <Header />
       <Navbar />
       <main className="flex flex-col">
@@ -31,7 +31,7 @@ export default async function ScieloBusca({
         <ul className="p-0 m-0">
           {results.length > 0 ? (
             results.map((result) => (
-              <li key={result.id} className="flex flex-col mb-5 w-ful sm:w-3/4">
+              <li key={result.id} className="flex flex-col mb-5 w-ful">
                 <ArticleTitle title={result.displayTitle} />
                 {result.isNotPreprint && (
                   <ArticleSource source={result.source} year={result.year} />

@@ -1,35 +1,36 @@
-import { load, Element, Cheerio } from "cheerio";
+import { load, Element, Cheerio, text } from "cheerio";
 
 type Type = "legacy" | "br" | "preprint";
 
 interface Content {
   type: "text" | "image" | "table",
-  value: string | null | undefined
+  value: string | null | undefined,
+  textBelow?: string | null | undefined,
 }
 
-interface Text extends Content {
+export interface Text extends Content {
   quote: boolean,
 }
 
-interface Image extends Content {
+export interface Image extends Content {
   id: string | undefined,
-}
-
-interface Table extends Image {
-  isImage: boolean,
   label: {
     name: string,
     description: string,
   }
 }
 
-interface Section {
+export interface Table extends Image {
+  isImage: boolean,
+}
+
+export interface Section {
   title: string,
   isSubtitle: boolean,
   content: Array<Text | Image | Table>,
 }
 
-interface Abstract {
+export interface Abstract {
   title: string | undefined,
   text: string | undefined,
   keywords: {
@@ -38,12 +39,12 @@ interface Abstract {
   },
 }
 
-interface Authors {
+export interface Authors {
   name: string,
   id: string,
 }
 
-interface AuthorDescription {
+export interface AuthorDescription {
   [key: string]: string,
 }
 
@@ -51,7 +52,7 @@ function getSectionData(section: Element, host: string) {
   const $ = load(section);
 
   const thisSection: Section = {
-    title: $('.sec, .sub-subsec').text(),
+    title: $('.sec, .sub-subsec').first().text(),
     isSubtitle: $('.sub-subsec').length != 0,
     content: new Array()
   };
@@ -59,7 +60,9 @@ function getSectionData(section: Element, host: string) {
   // Qualquer <p> dentro de um <div>
   // Qualquer div com a classe .table-wrap ou .figure
   // Qualquer <blockquote>
-  $('div > p, .table-wrap, blockquote, .figure').each(function () {
+  $('.section > p, .table-wrap, blockquote, .figure').each(function () {
+    let parentTitle = $(this).parent().find('.sec, .sub-subsec').first().text();
+    if (parentTitle != thisSection.title) return;
     // Se o elemento não tiver uma classe ele pode ser tanto um blockquote quanto um p
     // Porém, o blockquote tem um p dentro dele, então eu verifico isso.
     const type = $(this).attr('class');
@@ -69,27 +72,34 @@ function getSectionData(section: Element, host: string) {
         thisSection.content.push({
           type: "text",
           quote: $(this).has('p').length ? true : false,
-          value: $(this).text()
+          value: $(this).html()
         })
         break;
       case 'figure':
         thisSection.content.push({
           type: "image",
           id: $(this).find('a').first().attr('name'),
-          value: host + $(this).find('img').attr('src')
+          value: host + $(this).find('img').attr('src'),
+          label: {
+            name: $(this).find('.label').text(),
+            description: $(this).find('.caption').text()
+          }
         })
         break;
       case 'table-wrap':
         let table = $(this).find('.table').html();
-        const isImage = !table;
 
+        const isImage = !table;
         if (!table) table = host + $(this).find('img').attr('src');
+
+        const textBelow = $(this).find('p').not('.label_caption, .label').html();
 
         thisSection.content.push({
           type: "table",
           id: $(this).find('a').first().attr('name'),
           value: table,
           isImage: isImage,
+          textBelow: textBelow,
           label: {
             name: $(this).find('.label').text(),
             description: $(this).find('.caption').text()
@@ -109,7 +119,7 @@ function getAbstractData(abstract: Element): Abstract {
 
   $('p').each(function (i) {
     if (i == 0) data.title = $(this).text();
-    else if (i == 1) data.text = $(this).text();
+    else if (i == 1) data.text = $(this).html();
     else {
       data.keywords = {
         label: $(this).find('b').text(),
@@ -141,14 +151,15 @@ function getAuthorsData(a: Cheerio<Element>, d: Cheerio<Element>) {
     });
   });
 
-  return {authors, descriptions};
+  return { authors, descriptions };
 }
 
 function getPageHost(url: string) {
-  return url.split('/')[2];
+  const split = url.split('/');
+  return split[0] + '//' + split[2];
 }
 
-async function scrapeLegacyArticle(html: string, host: string): Promise<any> {
+async function scrapeLegacyArticle(html: string, host: string) {
   const $ = load(html);
 
   // Resumo em diversas línguas do artigo
@@ -168,7 +179,7 @@ async function scrapeLegacyArticle(html: string, host: string): Promise<any> {
 
   return {
     type: "legacy",
-    title: $('.title').text(),
+    title: $('.title').html(),
     altTitle: getTranslatedTitles($('.trans-title').toArray()),
     authors: authors,
     abstracts: abstracts,
@@ -176,7 +187,7 @@ async function scrapeLegacyArticle(html: string, host: string): Promise<any> {
   }
 }
 
-async function scrapePreprintArticle(html: string): Promise<any> {
+async function scrapePreprintArticle(html: string) {
 
 }
 
@@ -195,14 +206,21 @@ function getTypeFromUrl(url: string): Type {
   else return 'legacy';
 }
 
-export default async function scrapeArticle(url: string): Promise<any> {
+export async function getTitle(url: string) {
+  const html = await (await fetch(url)).text();
+  const $ = load(html);
+  return $('.title').text();
+}
+
+export default async function scrapeArticle(url: string) {
   const type = getTypeFromUrl(url);
+
+  if (type == "br") return "br";
+
   const html = await (await fetch(url)).text();
   const host = getPageHost(url);
 
   switch (type) {
-    case 'br':
-      return 'br';
     case 'legacy':
       return await scrapeLegacyArticle(html, host);
     case 'preprint':

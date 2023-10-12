@@ -13,8 +13,8 @@ interface SearchResult {
   year: string | undefined;
   authors: string[];
   abstracts: Abstracts;
-  pdf: {lang: string, url: string}[];
-  text: {lang: string, url: string}[]
+  pdf: { lang: string, url: string }[];
+  text: { lang: string, url: string }[]
 }
 
 interface Abstracts {
@@ -38,8 +38,8 @@ function scrapeSearch(html: string) {
     const displayTitle = $(this).find(".line .title").text();
     const authors: string[] = [];
     const abstracts: Abstracts = {};
-    const pdf: {lang: string, url: string}[] = [];
-    const text: {lang: string, url: string}[] = [];
+    const pdf: { lang: string, url: string }[] = [];
+    const text: { lang: string, url: string }[] = [];
 
     // Setting authors names
     $(this)
@@ -66,8 +66,8 @@ function scrapeSearch(html: string) {
         const href = $(this).attr("href");
         if (!href || href === "#") return;
 
-        if (href.includes("pdf")) pdf.push({lang: $(this).attr('title')!, url: href})
-        else text.push({lang: $(this).attr('title')!, url: href})
+        if (href.includes("pdf")) pdf.push({ lang: $(this).attr('title')!, url: href })
+        else text.push({ lang: $(this).attr('title')!, url: href })
       });
 
     searchResults.push({
