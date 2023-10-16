@@ -1,95 +1,54 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import Button from "./button";
+import Button from "./Button";
+import FormInput from "./FormInput";
+import { ChangeEvent, useState } from "react";
+import SearchFilters from "./SearchFilters";
+
+interface Filters {
+  [key: string]: string;
+}
 
 export default function SearchBar() {
-  const [dataset, setDataset] = useState<string>("scielo");
-  const [keywords, setKeywords] = useState<string | undefined>(undefined);
-  const [author, setAuthor] = useState<string | undefined>(undefined);
-  const [year, setYear] = useState<number | undefined>(undefined);
-
+  const [filters, setFilters] = useState<Filters>({});
   const router = useRouter();
 
-  function handleKeywordsChange(e: ChangeEvent<HTMLInputElement>) {
-    setKeywords(e.target.value);
-  }
-
-  function handleDatasetChange(e: ChangeEvent<HTMLSelectElement>) {
-    setDataset(e.target.value);
-  }
-
-  function handleAuthorChange(e: ChangeEvent<HTMLInputElement>) {
-    setAuthor(e.target.value);
-  }
-
-  function handleYearChange(e: ChangeEvent<HTMLInputElement>) {
-    setYear(Number(e.target.value));
+  function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    const newValues = { ...filters };
+    newValues[e.target.id] = e.target.value;
+    setFilters(newValues);
   }
 
   function handleSubmit(e: any) {
     e.preventDefault();
-    let searchString = "";
 
-    if (!keywords && !author && !year) return;
-    if (keywords && !author && !year) {
-      searchString = encodeURI(keywords);
-    } else {
-      let fields: string[] = [];
-      if (keywords) fields.push(keywords);
-      if (author) fields.push(`(au:(${author}))`);
-      if (year) fields.push(`(year_cluster:(${year}))`);
-      searchString = encodeURI(fields.join("+AND+"));
+    const query: string[] = [];
+    
+    for (const id in filters) {
+      if (filters[id] == '') continue;
+      if (id == 'q') query.push(`(${filters[id]})`)
+      else query.push(`(${id}:(${filters[id]}))`)
     }
-
-    router.push(`/${dataset}/busca/?keywords=${searchString}`);
+    
+    router.push(`/scielo/busca/?keywords=${encodeURI(query.join('+AND+'))}`);
   }
 
   return (
-    <form role="search" className="flex flex-col items-start" onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="bancos">Banco de artigos:</label>
-        <select
-          defaultValue={dataset}
-          id="bancos"
-          className="ml-3 mb-2"
-          onChange={handleDatasetChange}
-        >
-          <option value="scielo">Scielo.org</option>
-        </select>
-      </div>
-      <div>
-        <label htmlFor="keywords">Palavras-chave:</label>
-        <input
-          type="text"
-          id="keywords"
-          placeholder="Exemplo: covid"
-          className="ml-3 mb-2 w-52 sm:w-96"
-          onChange={handleKeywordsChange}
-        />
-      </div>
-      <div>
-        <label htmlFor="author">Autor:</label>
-        <input
-          type="text"
-          id="author"
-          placeholder="Exemplo: João"
-          className="ml-3 mb-2 w-52 sm:w-96"
-          onChange={handleAuthorChange}
-        />
-      </div>
-      <div>
-        <label htmlFor="year">Ano da publicação:</label>
-        <input
-          type="number"
-          id="year"
-          placeholder="Exemplo: 2021, 2020"
-          className="ml-3 mb-2 w-52 sm:w-96"
-          onChange={handleYearChange}
-        />
-      </div>
-      <Button text="Buscar"/>
+    <form
+      role="search"
+      className="w-full flex flex-col gap-3"
+      onSubmit={handleSubmit}
+    >
+      <FormInput
+        label="Procurar"
+        placeholder="Exemplo: células-tronco"
+        type="search"
+        title="Pesquisar"
+        onChange={handleChange}
+      />
+      <SearchFilters handleChange={handleChange} />
+      <Button type="submit">Buscar</Button>
     </form>
   );
 }

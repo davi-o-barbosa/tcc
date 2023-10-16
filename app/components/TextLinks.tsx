@@ -4,18 +4,18 @@ export default function TextLinks(props: {
   articlesList: { lang: string; url: string }[];
 }) {
   return (
-    <ul className="textlinks">
+    <div className="textlinks">
       <span>Texto:</span>
       {props.articlesList.map((article) => {
         return (
           <Link
-            key={article.lang}
+          key={article.lang}
             href={{ pathname: "/scielo/leitor", query: { url: article.url } }}
           >
             {article.lang}
           </Link>
         );
       })}
-    </ul>
+    </div>
   );
 }

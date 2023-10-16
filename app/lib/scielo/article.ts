@@ -59,6 +59,11 @@ export interface References {
   data: Reference[]
 }
 
+export interface pdfFile {
+  text: string,
+  url: string
+}
+
 function getSectionData(section: Element, host: string) {
   const $ = load(section);
 
@@ -198,6 +203,17 @@ async function scrapeLegacyArticle(html: string, host: string) {
     headingName: $('#article-back .sec').text(),
     data: [],
   };
+  const pdfFiles: pdfFile[] = [];
+
+  const pdfElements = $('#toolBox ul > li > a').filter((e, i) => i.attribs['href']?.slice(-3) == 'pdf')
+  
+  // Workaround por causa do cheerio não documentado data como uma propriedade.
+  pdfElements.each((_, element: any) => {
+    pdfFiles.push({
+      text: element.firstChild.next.data.trim(),
+      url: host + element.attribs['href']
+    })
+  }); 
 
   $('.abstract, .trans-abstract').each((_, abstractElement) => {
     abstracts.push(getAbstractData(abstractElement));
@@ -218,7 +234,8 @@ async function scrapeLegacyArticle(html: string, host: string) {
     authors: authors,
     abstracts: abstracts,
     sections: sections,
-    references: references
+    references: references,
+    pdfFiles: pdfFiles
   }
 }
 

@@ -1,12 +1,58 @@
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-table, th, td {
-  border-top: 2px solid;
-  border-bottom: 2px solid;
-}
+@layer base {
+  h1 {
+    @apply text-2xl font-bold mt-5; 
+  }
 
-th, td {
-  padding-left: 3px;
-  padding-right: 3px;
+  h2 {
+    @apply text-xl font-semibold mt-5;
+  }
+
+  h3 {
+    @apply text-lg font-semibold mt-5;
+  }
+
+  h4 {
+    @apply font-semibold;
+  }
+
+  a {
+    @apply text-blue-700;
+  }
+
+  p {
+    @apply my-2;
+  }
+
+  sup {
+    @apply text-sm;
+  }
+
+  button:focus {
+    @apply outline-none ring-4 ring-black transition duration-200 ease-in-out;
+  }
+
+  input:focus {
+    @apply outline-none ring-4 ring-black transition duration-200 ease-in-out;
+  }
+
+  a:focus {
+    @apply outline-none border-4 border-black transition duration-200 ease-in-out;
+  }
+
+  table,
+  th,
+  td {
+    border-top: 2px solid;
+    border-bottom: 2px solid;
+  }
+
+  th,
+  td {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
 }

@@ -16,7 +16,7 @@ export default function SectionContent(props: {
     case "image":
       const image = props.content as Image;
       return (
-        <div>
+        <div className="my-10">
           <p id={image.id ?? ""}>
             <b>{image.label.name}</b> - {image.label.description}
           </p>
@@ -28,7 +28,7 @@ export default function SectionContent(props: {
     case "table":
       const table = props.content as Table;
       return (
-        <div>
+        <div className="my-10">
           {table.isImage ? (
             <>
               <p id={table.id ?? ""}>

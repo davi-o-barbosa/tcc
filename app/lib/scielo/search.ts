@@ -10,8 +10,7 @@ interface SearchResult {
   url: string | undefined;
   doi: string | undefined;
   source: string | undefined;
-  year: string | undefined;
-  authors: string[];
+  authors: { name: string, url: string }[];
   abstracts: Abstracts;
   pdf: { lang: string, url: string }[];
   text: { lang: string, url: string }[]
@@ -36,10 +35,32 @@ function scrapeSearch(html: string) {
 
   $(".results > .item").each(function () {
     const displayTitle = $(this).find(".line .title").text();
-    const authors: string[] = [];
+    const authorsNames: string[] = [];
     const abstracts: Abstracts = {};
     const pdf: { lang: string, url: string }[] = [];
     const text: { lang: string, url: string }[] = [];
+    const authors: { name: string, url: string }[] = [];
+
+    const thisSource: any = {
+      periodico: undefined,
+      date: '',
+      details: []
+    }
+
+    $(this).find('.source > span, .source > small').each(function (i, element) {
+      
+      if(element.name == 'span') {
+        const titleLocation = $(this).find('.showTooltip');
+        if (titleLocation.length > 0) thisSource.periodico = titleLocation.text().trim();
+        else if ($(this).attr('style') === 'margin: 0'){
+          thisSource.date += $(this).text().trim().replace(',', ' ') + ' '
+        } else {
+          thisSource.details.push($(this).text().trim())
+        }
+      } else if (element.name == 'small') {
+        thisSource.details.push($(this).text().trim())
+      }
+    })
 
     // Setting authors names
     $(this)
@@ -48,8 +69,15 @@ function scrapeSearch(html: string) {
         const name = $(this).text().split(",");
         name[0] = name[0].toUpperCase();
 
-        authors.push(name.join(","));
+        authorsNames.push(name.join(","));
       });
+
+    $(this).find(".authors > a").not('.author').each(function (i, _) {
+      authors.push({
+        name: authorsNames[i],
+        url: $(this).attr('href') ?? '',
+      })
+    })
 
     // Setting abstracts
     $(this)
@@ -77,16 +105,7 @@ function scrapeSearch(html: string) {
       id: $(this).attr("id"),
       url: $(this).find(".line > a").attr("href"),
       doi: $(this).find(".metadata a").attr("href"),
-      source: $(this).find(".source a").first().text(),
-      year: $(this)
-        .find(".source span")
-        .filter(function (i, el) {
-          if ($(this).text() == "") return false;
-          return !isNaN(+$(this).text().replace(",", ""));
-        })
-        .first()
-        .text()
-        .replace(",", ""),
+      source: thisSource,
       authors: authors,
       abstracts: abstracts,
       pdf: pdf,
