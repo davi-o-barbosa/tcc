@@ -31,7 +31,7 @@ export default function SearchBar() {
       else query.push(`(${id}:(${filters[id]}))`)
     }
     
-    router.push(`/scielo/busca/?keywords=${encodeURI(query.join('+AND+'))}`);
+    router.push(`/scielo/busca/?page=0&number=15&keywords=${encodeURI(query.join('+AND+'))}`);
   }
 
   return (

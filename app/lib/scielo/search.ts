@@ -1,6 +1,6 @@
 import { load } from "cheerio";
 
-const searchUrl = "https://search.scielo.org/?lang=pt&count=15&from=0&output=site&format=summary&fb=&page=1&q=$keywords";
+const searchUrl = "https://search.scielo.org/?lang=pt&count=$count&from=$from&output=site&format=summary&fb=&page=1&q=$keywords";
 
 interface SearchResult {
   originalTitle: string | undefined;
@@ -30,8 +30,9 @@ function isNotPreprint(title: string | undefined): boolean {
 }
 
 function scrapeSearch(html: string) {
-  const searchResults: SearchResult[] = [];
+  const results: SearchResult[] = [];
   const $ = load(html);
+  const numberOfResults = Number($('.filterTitle > strong').text().replace(/\D/g, ''));
 
   $(".results > .item").each(function () {
     const displayTitle = $(this).find(".line .title").text();
@@ -47,8 +48,8 @@ function scrapeSearch(html: string) {
       details: []
     }
 
+    // Setting details about the source of the article.
     $(this).find('.source > span, .source > small').each(function (i, element) {
-      
       if(element.name == 'span') {
         const titleLocation = $(this).find('.showTooltip');
         if (titleLocation.length > 0) thisSource.periodico = titleLocation.text().trim();
@@ -98,7 +99,7 @@ function scrapeSearch(html: string) {
         else text.push({ lang: $(this).attr('title')!, url: href })
       });
 
-    searchResults.push({
+    results.push({
       originalTitle: $(this).find(".line > a").attr("title"),
       displayTitle: displayTitle,
       isNotPreprint: isNotPreprint(displayTitle),
@@ -113,11 +114,16 @@ function scrapeSearch(html: string) {
     });
   });
 
-  return searchResults;
+  return {results, numberOfResults};
 }
 
-export default async function search(keywords: string) {
-  const response = await fetch(searchUrl.replace("$keywords", keywords));
+export default async function search(keywords: string, resultsPerPage: string, from?: number) {
+  let query = searchUrl.replace("$keywords", keywords);
+  query = query.replace("$count", String(resultsPerPage));
+  query = query.replace("$from", String(from) ?? '0');
+  
+  console.log(query)
+  const response = await fetch(query);
   const data = scrapeSearch(await response.text());
 
   return data;
