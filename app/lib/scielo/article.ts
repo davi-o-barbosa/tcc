@@ -206,14 +206,14 @@ async function scrapeLegacyArticle(html: string, host: string) {
   const pdfFiles: pdfFile[] = [];
 
   const pdfElements = $('#toolBox ul > li > a').filter((e, i) => i.attribs['href']?.slice(-3) == 'pdf')
-  
+
   // Workaround por causa do cheerio não documentado data como uma propriedade.
   pdfElements.each((_, element: any) => {
     pdfFiles.push({
       text: element.firstChild.next.data.trim(),
       url: host + element.attribs['href']
     })
-  }); 
+  });
 
   $('.abstract, .trans-abstract').each((_, abstractElement) => {
     abstracts.push(getAbstractData(abstractElement));
@@ -267,15 +267,9 @@ export async function getTitle(url: string) {
 export default async function scrapeArticle(url: string) {
   const type = getTypeFromUrl(url);
 
-  if (type == "br") return "br";
+  if (type == "br" || type == "preprint") return "redirect";
 
   const html = await (await fetch(url)).text();
   const host = getPageHost(url);
-
-  switch (type) {
-    case 'legacy':
-      return await scrapeLegacyArticle(html, host);
-    case 'preprint':
-      return await scrapePreprintArticle(html);
-  }
+  return await scrapeLegacyArticle(html, host);
 }

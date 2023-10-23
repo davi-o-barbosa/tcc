@@ -31,7 +31,7 @@ export default async function Leitor({
 }) {
   const data = await scrapeArticle(searchParams.url);
 
-  if (data === "br" || !data) redirect(searchParams.url);
+  if (data === "redirect" || !data) redirect(searchParams.url);
 
   return (
     <>

@@ -1,6 +1,6 @@
 import { load } from "cheerio";
 
-const searchUrl = "https://search.scielo.org/?lang=pt&count=15&from=0&output=site&sort=&format=summary&fb=&page=1&q=$keywords";
+const searchUrl = "https://search.scielo.org/?lang=pt&count=15&from=0&output=site&format=summary&fb=&page=1&q=$keywords";
 
 interface SearchResult {
   originalTitle: string | undefined;

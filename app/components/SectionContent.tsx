@@ -17,7 +17,7 @@ export default function SectionContent(props: {
       const image = props.content as Image;
       return (
         <div className="my-10">
-          <p id={image.id ?? ""}>
+          <p className="mb-5" id={image.id ?? ""}>
             <b>{image.label.name}</b> - {image.label.description}
           </p>
           <Img url={image.value!} label={image.label.description} />
@@ -31,7 +31,7 @@ export default function SectionContent(props: {
         <div className="my-10">
           {table.isImage ? (
             <>
-              <p id={table.id ?? ""}>
+              <p className="mb-5" id={table.id ?? ""}>
                 <b>{table.label.name}</b> - {table.label.description}
               </p>
               <Img url={table.value!} label={table.label.description} />

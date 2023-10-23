@@ -60,7 +60,7 @@ export default async function ScieloBusca({
                   className="flex w-36 mt-2 justify-center items-center gap-2 p-2 text-black bg-blue-300 rounded-md hover:bg-blue-400"
                   href={{
                     pathname: "/scielo/leitor",
-                    query: { url: result.text[0].url.slice(0, -8) },
+                    query: { url: result.text[0]?.url.slice(0, -8) ?? result.url},
                   }}
                 >
                   <FaAnglesRight />
