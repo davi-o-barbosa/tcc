@@ -12,7 +12,7 @@ import SkipContentButton from "@/app/components/SkipContentButton";
 import ResultAbstract from "@/app/components/ResultAbstract";
 
 export const metadata: Metadata = {
-  title: "Resultados",
+  title: "Resultados da busca",
 };
 
 export default async function ScieloBusca({
