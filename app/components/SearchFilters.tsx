@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
-import { AiFillCaretDown } from "react-icons/ai";
+import { AiFillCaretDown, AiFillCaretUp } from "react-icons/ai";
 
 const allFilters = [
   { label: "Autor", code: "au", type: "text", example: "Gabriel" },
@@ -24,17 +24,17 @@ export default function SearchFilters(props: SearchFiltersProps) {
 
   return (
     <section>
-      <div className="bg-slate-400 text-black rounded-lg p-3 flex flex-col items-start">
+      <div className="bg-slate-400 text-black rounded-lg p-3 flex flex-col items-start shadow-md">
         <button
           id="add-filter"
           onClick={() => setMenuOpened(!menuOpened)}
           type="button"
-          aria-expanded={false}
+          aria-expanded={menuOpened}
           aria-controls="filters"
           className="flex justify-center items-center gap-2 font-semibold"
         >
-          <span className={menuOpened ? "rotate-180" : "rotate-0"}>
-            <AiFillCaretDown />
+          <span>
+            {menuOpened ? <AiFillCaretUp /> : <AiFillCaretDown/>}
           </span>
           Filtros avançados
         </button>
@@ -43,7 +43,7 @@ export default function SearchFilters(props: SearchFiltersProps) {
             {allFilters.map((filter) => {
               return (
                 <div
-                  className="flex-1 mb-2 text-white bg-gray-700 p-2 rounded-md"
+                  className="flex-1 mb-2 text-white bg-gray-700 p-2 rounded-md shadow-lg"
                   key={filter.code}
                 >
                   <label className="mr-2" htmlFor={filter.code}>

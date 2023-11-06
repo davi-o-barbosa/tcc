@@ -15,7 +15,7 @@ export default function FormInput(props: FormInputProps) {
       <input
         type="search"
         id="q"
-        className="w-full p-2 px-4 rounded-lg border-indigo-500 border-2"
+        className="w-full p-2 px-4 rounded-lg border-indigo-500 border-2 shadow-md"
         {...props}
       />
     </section>

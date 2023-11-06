@@ -48,7 +48,7 @@ export default function SearchBar() {
         onChange={handleChange}
       />
       <SearchFilters handleChange={handleChange} />
-      <Button type="submit">Buscar</Button>
+      <Button type="submit" aria-label="Realizar busca">Buscar</Button>
     </form>
   );
 }

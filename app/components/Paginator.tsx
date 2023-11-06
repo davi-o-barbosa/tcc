@@ -16,7 +16,7 @@ export default function Paginator({ searchDetails }: PaginatorProps) {
   const router = useRouter();
 
   const baseStyle =
-    "w-10 h-9 flex justify-center items-center rounded-md border border-1 duration-150 transition ";
+    "w-10 h-9 flex justify-center items-center rounded-md border border-1 duration-150 transition shadow-md ";
   const currentPageStyle = baseStyle + "bg-sky-500 border-sky-500";
   const otherPagesStyle = baseStyle + "border-gray-300 hover:bg-gray-300";
 
@@ -74,7 +74,7 @@ export default function Paginator({ searchDetails }: PaginatorProps) {
   }
 
   return (
-    <nav aria-label="paginação" className="my-5 flex flex-wrap gap-2">
+    <nav aria-label="Paginação" className="my-5 flex flex-wrap gap-2">
       <button
         aria-label="Ir para a página anterior"
         className={otherPagesStyle}

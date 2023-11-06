@@ -122,7 +122,6 @@ export default async function search(keywords: string, resultsPerPage: string, f
   query = query.replace("$count", String(resultsPerPage));
   query = query.replace("$from", String(from) ?? '0');
   
-  console.log(query)
   const response = await fetch(query);
   const data = scrapeSearch(await response.text());
 

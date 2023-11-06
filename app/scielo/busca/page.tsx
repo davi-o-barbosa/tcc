@@ -8,6 +8,8 @@ import { HiUsers } from "react-icons/hi";
 import { FaAnglesRight } from "react-icons/fa6";
 import Link from "next/link";
 import Paginator from "@/app/components/Paginator";
+import SkipContentButton from "@/app/components/SkipContentButton";
+import ResultAbstract from "@/app/components/ResultAbstract";
 
 export const metadata: Metadata = {
   title: "Resultados",
@@ -22,9 +24,8 @@ export default async function ScieloBusca({
     number: string;
   };
 }) {
-  console.log(searchParams.number);
-
-  const fromArticle = Number(searchParams.number) * Number(searchParams.page) + 1;
+  const fromArticle =
+    Number(searchParams.number) * Number(searchParams.page) + 1;
   const { results, numberOfResults } = await search(
     searchParams.keywords,
     searchParams.number,
@@ -33,11 +34,13 @@ export default async function ScieloBusca({
 
   return (
     <div className="w-10/12 sm:w-10/12 lg:w-3/5 xl:w-6/12 flex flex-col justify-center">
+      <SkipContentButton />
       <Header />
       <SearchBar />
-      <main className="flex flex-col">
-        <h2 className="mt-10">Resultados da pesquisa:</h2>
-        <p className="m-0">{numberOfResults} artigos encontrados</p>
+      <main className="flex flex-col mb-20">
+        <h2 className="mt-10" id="results">
+          Resultados da pesquisa: <span className="font-normal text-base">{numberOfResults} artigos encontrados</span>
+        </h2>
         <Paginator
           searchDetails={{
             keywords: searchParams.keywords,
@@ -51,9 +54,12 @@ export default async function ScieloBusca({
             results.map((result) => (
               <li
                 key={result.id}
-                className="flex flex-col gap-2 mb-5 p-4 bg-slate-200"
+                className="flex flex-col gap-2 mb-5 p-4 bg-slate-200 rounded-md shadow-lg"
               >
-                <ArticleTitle title={result.displayTitle} />
+                <ArticleTitle
+                  title={result.displayTitle}
+                  url={result.text[0]?.url.slice(0, -8) ?? result.url}
+                />
                 {result.isNotPreprint && (
                   <ArticleSource source={result.source} />
                 )}
@@ -72,8 +78,9 @@ export default async function ScieloBusca({
                     })}
                   </div>
                 </div>
+                {result.abstracts['pt'] && <ResultAbstract text={result.abstracts['pt']}/>}
                 <Link
-                  className="flex w-36 mt-2 justify-center items-center gap-2 p-2 text-black bg-blue-300 rounded-md hover:bg-blue-400"
+                  className="flex w-36 mt-2 justify-center items-center gap-2 p-2 text-black bg-blue-300 rounded-md hover:bg-blue-400 shadow-md"
                   href={{
                     pathname: "/scielo/leitor",
                     query: {
