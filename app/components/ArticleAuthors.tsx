@@ -21,7 +21,7 @@ export default function ArticleAuthors(props: {
             {author.name}
             <sup>
               {" "}
-              <a aria-label="Mais informações do autor" href={author.id}>
+              <a aria-label={`Mais informações do autor ${i+1}`} href={author.id}>
                 {i + 1}
               </a>
             </sup>

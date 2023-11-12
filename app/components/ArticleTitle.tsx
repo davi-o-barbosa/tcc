@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function ArticleTitle(props: { title: string | undefined, url: string }) {
   return (
     <Link
-      className="m-0 p-0"
+      className="m-0 p-0 text-blue-800"
       href={{
         pathname: "/scielo/leitor",
         query: {

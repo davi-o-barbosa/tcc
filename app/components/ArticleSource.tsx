@@ -11,7 +11,7 @@ export default function ArticleSource(props: {
           if (i % 2) {
             return <span key={i}>{e}, </span>
           } else {
-            return <span key={i} className='text-slate-600'>{e}: </span>
+            return <span key={i} className='text-slate-700'>{e}: </span>
           }
         })
       }</p>

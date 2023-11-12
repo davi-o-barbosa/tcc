@@ -86,7 +86,7 @@ export default function Paginator({ searchDetails }: PaginatorProps) {
       {currentPage >= 5 && (
         <>
           <button
-            aria-label={`Ir para a primeira página`}
+            aria-label={`Ir para a primeira página, 1`}
             className={otherPagesStyle}
             onClick={() => goToPage(0)}
           >
@@ -102,7 +102,7 @@ export default function Paginator({ searchDetails }: PaginatorProps) {
         <>
           <p>...</p>
           <button
-            aria-label={`Ir para a última página`}
+            aria-label={`Ir para a última página, ${lastPage}`}
             className={otherPagesStyle}
             onClick={() => goToPage(lastPage - 1)}
           >

@@ -71,7 +71,7 @@ export default async function ScieloBusca({
                   <div>
                     {result.authors.map((author, i) => {
                       return (
-                        <a className="mr-2" href={author.url} key={i}>
+                        <a className="mr-2 text-lg text-blue-800" href={author.url} key={i}>
                           {author.name};
                         </a>
                       );

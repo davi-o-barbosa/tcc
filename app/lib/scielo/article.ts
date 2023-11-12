@@ -205,12 +205,12 @@ async function scrapeLegacyArticle(html: string, host: string) {
   };
   const pdfFiles: pdfFile[] = [];
 
-  const pdfElements = $('#toolBox ul > li > a').filter((e, i) => i.attribs['href']?.slice(-3) == 'pdf')
+  const pdfElements = $('#toolBox ul > li > a').filter((e, i) => i.attribs['href']?.slice(-3) == 'pdf');  
 
   // Workaround por causa do cheerio não documentado data como uma propriedade.
   pdfElements.each((_, element: any) => {
     pdfFiles.push({
-      text: element.firstChild.next.data.trim(),
+      text: element.firstChild.next ? element.firstChild.next.data.trim() :  element.firstChild.data.trim(),
       url: host + element.attribs['href']
     })
   });
